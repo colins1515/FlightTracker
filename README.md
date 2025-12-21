@@ -6,4 +6,4 @@ Flight data is retrieved from the AviationStack API, and favorites are stored us
 
 ##Developer Manual##
 See the Developer Manual for setup and technical details:
-docs/DEVELOPER_MANUAL.md
+https://github.com/colins1515/FlightTracker/blob/main/DEVELOPER_MANUAL.md
