@@ -61,7 +61,7 @@ export default function Favorites() {
     }
   }
 
-  if (loading return <p className="loading">Loading saved flights...<\p>;
+  if (loading return <p className="loading">Loading saved flights...<\p>);
 
   return (
     <div key={fav.id} className="card">
