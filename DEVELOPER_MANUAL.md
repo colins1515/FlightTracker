@@ -50,7 +50,5 @@ No automated tests are included in the application
 ## Future Development
 
 - Add user auth
-- Allow removal of entries from favorites table
 - Add automated testing
-- Improve map usability and performance
    
