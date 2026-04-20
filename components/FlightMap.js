@@ -1,5 +1,5 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import L from 'leaflet';
 import { airportCoords } from '../lib/airportCoords';
@@ -14,7 +14,6 @@ L.Icon.Default.mergeOptions({
 
 export default function FlightMap({ flights, airport }) {
   const [dateFilter, setDateFilter] = useState('');
-  const [arrFilter, setArrFilter] = useState('');
 
   const center = airportCoords[airport];
 
@@ -22,25 +21,22 @@ export default function FlightMap({ flights, airport }) {
     return <div className="card"><p>Map not available for this airport.</p></div>;
   }
 
-  // Build unique list of arrival airports for the filter dropdown
-  const arrivalCodes = [...new Set(
-    flights.map(f => f.arrival?.iata).filter(Boolean)
-  )].sort();
+  // Filter by date against scheduled or estimated departure
+  const filtered = useMemo(() => {
+    if (!dateFilter) return flights;
+    return flights.filter(f => {
+      const scheduled = f.departure?.scheduled || '';
+      const estimated = f.departure?.estimated || '';
+      return scheduled.startsWith(dateFilter) || estimated.startsWith(dateFilter);
+    });
+  }, [flights, dateFilter]);
 
-  // Apply date and arrival airport filters
-  const filtered = flights.filter(f => {
-    const matchesDate = !dateFilter || f.departure?.scheduled?.startsWith(dateFilter);
-    const matchesArr = !arrFilter || f.arrival?.iata === arrFilter;
-    return matchesDate && matchesArr;
-  });
-
-  // Only render markers for flights with known arrival coordinates
+  // Only show markers for flights with a known arrival coordinate
   const mappable = filtered.filter(f => airportCoords[f.arrival?.iata]);
 
   return (
     <div>
-      {/* Filter controls */}
-      <div className="card" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '8px' }}>
+      <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', marginBottom: '8px' }}>
         <div>
           <label>Date</label><br />
           <input
@@ -50,21 +46,9 @@ export default function FlightMap({ flights, airport }) {
           />
         </div>
         <div>
-          <label>Arrival airport</label><br />
-          <select value={arrFilter} onChange={e => setArrFilter(e.target.value)}>
-            <option value="">All</option>
-            {arrivalCodes.map(code => (
-              <option key={code} value={code}>{code}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ alignSelf: 'flex-end' }}>
-          {/* Clear both filters */}
-          <button onClick={() => { setDateFilter(''); setArrFilter(''); }}>
-            Clear filters
-          </button>
+          <button onClick={() => setDateFilter('')}>Clear</button>
           <span style={{ marginLeft: '10px', fontSize: '13px' }}>
-            {mappable.length} flight{mappable.length !== 1 ? 's' : ''} shown
+            {mappable.length} of {flights.length} flight{flights.length !== 1 ? 's' : ''} shown
           </span>
         </div>
       </div>
@@ -73,6 +57,26 @@ export default function FlightMap({ flights, airport }) {
         <TileLayer
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
+        {mappable.map((f, idx) => (
+          <Marker key={f.flight?.iata || idx} position={airportCoords[f.arrival.iata]}>
+            <Popup>
+              <strong>{f.flight?.iata}</strong><br />
+              {f.airline?.name}<br />
+              {airport} → {f.arrival.iata}<br />
+              Status: {f.flight_status}<br />
+              {f.departure?.scheduled && (
+                <>Scheduled: {new Date(f.departure.scheduled).toLocaleString()}<br /></>
+              )}
+              <Link href={`/flight?flight_iata=${f.flight?.iata}`}>View flight →</Link>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
+  );
+}          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
         {/* One marker per arrival airport — clicking the popup link opens the flight page */}
