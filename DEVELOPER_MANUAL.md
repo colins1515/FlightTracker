@@ -11,7 +11,7 @@
    npm install
 
 3. Create a .env.local file with the project root:
-   AVIATIONSTACK_API_KEY=dbedc9b159b259afc3a6a1716f86d6f0
+   AVIATIONSTACK_API_KEY=736a054ad19006faec71afbca06c2399
    SUPABASE_URL=https://wsuqlpqrhigtbmitbjco.supabase.co
    SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzdXFscHFyaGlndGJtaXRiamNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxNjM1MDMsImV4cCI6MjA4MTczOTUwM30.SbjLKNAQeVVX5agQKsMC7XTtwWahP7OkJQljFz79bkA
 
